@@ -1,28 +1,27 @@
 package api
 
 import (
-	"encoding/json"
-	"errors"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 )
 
-var (
-	ErrImageFetch         = errors.New("error during fetching the image")
-	ErrImageResize        = errors.New("error during resizing the image")
-	ErrInvalidURI         = errors.New("invalid URI. Expected format is: /<method>/<width>/<height>/<external url>")
-	ErrImageCopyFromCache = errors.New("error during copying the image from cache")
-)
+type Link struct {
+	ID    string `json:"_id"`
+	Value string `json:"value"`
+}
 
-func (p *API) LinksHandler(w http.ResponseWriter, r *http.Request) {
-	dummyResponse := DummyResponse{true}
-
-	content, err := json.Marshal(dummyResponse)
+func getLinksHandler(w http.ResponseWriter, r *http.Request) {
+	content, err := ioutil.ReadFile("fixtures/links.json")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
+		log.Fatal().Err(err)
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(content)
+}
+
+func (p *API) HandleLinks(r *mux.Router) {
+	r.HandleFunc("", getLinksHandler).Methods("GET")
 }
