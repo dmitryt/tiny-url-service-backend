@@ -1,32 +1,37 @@
 package config
 
 import (
-	"context"
+	"fmt"
 
-	"github.com/heetch/confita"
-	"github.com/heetch/confita/backend/env"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
+type LogConfig struct {
+	Level    string `env:"LOG_LEVEL" env-default:"info"`
+	FilePath string `env:"FILE_PATH" env:"LOG_FILE"`
+}
+
+type DBConfig struct {
+	Host     string `env:"DB_HOST" env-default:"localhost"`
+	Port     int    `env:"DB_PORT" env-default:"28017"`
+	User     string `env:"DB_USER"`
+	Password string `env:"DB_PASSWORD"`
+	DBName   string `env:"DB_NAME"`
+	RepoType string `env:"DB_REPO_TYPE" env-default:"mongo"`
+}
+
 type Config struct {
-	Host     string `yaml:"host" config:"required"`
-	Port     int    `yaml:"port" config:"required"`
-	LogLevel string `yaml:"logLevel"`
+	Host string `env:"HOST" env-default:"localhost"`
+	Port int    `env:"PORT" env-default:"8082"`
+	// LogConfig LogConfig
+	// DBConfig DBConfig
 }
 
-func GetDefaultConfig() *Config {
-	return &Config{
-		Host:     "localhost",
-		Port:     8082,
-		LogLevel: "debug",
+func Read() (*Config, error) {
+	var config Config
+	err := cleanenv.ReadEnv(&config)
+	if err != nil {
+		fmt.Printf("HHHHHH %s", err)
 	}
-}
-
-func Read() (config *Config, err error) {
-	config = GetDefaultConfig()
-	loader := confita.NewLoader(
-		env.NewBackend(),
-	)
-	err = loader.Load(context.Background(), config)
-
-	return
+	return &config, err
 }

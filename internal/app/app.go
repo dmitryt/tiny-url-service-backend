@@ -33,7 +33,10 @@ func (p *App) Run(addr string) error {
 
 	log.Info().Msgf("Listening at %s", addr)
 
-	handler := cors.Default().Handler(r)
+	handler := cors.New(
+		cors.Options{
+			AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+		}).Handler(r)
 
 	return http.ListenAndServe(addr, handler)
 }

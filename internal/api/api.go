@@ -16,6 +16,6 @@ func New() *API {
 }
 
 func (p *API) Handle(r *mux.Router) {
-	p.HandleLinks(r.PathPrefix("/links").Subrouter());
-	p.HandleHealthCheck(r.PathPrefix("/health-check").Subrouter());
+	p.HandleLinks(r.PathPrefix("/links").Subrouter())
+	p.HandleHealthCheck(r.PathPrefix("/health-check").Subrouter())
 }

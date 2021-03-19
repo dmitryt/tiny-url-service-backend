@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var ErrAppFatal = errors.New("application cannot start2")
+var ErrAppFatal = errors.New("application cannot start")
 
 var isDev bool
 
