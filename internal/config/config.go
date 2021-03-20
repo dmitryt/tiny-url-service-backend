@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -12,7 +10,7 @@ type LogConfig struct {
 }
 
 type DBConfig struct {
-	Host     string `env:"DB_HOST" env-default:"localhost"`
+	Host     string `env:"DB_HOST" env-default:""`
 	Port     int    `env:"DB_PORT" env-default:"28017"`
 	User     string `env:"DB_USER"`
 	Password string `env:"DB_PASSWORD"`
@@ -21,8 +19,9 @@ type DBConfig struct {
 }
 
 type Config struct {
-	Host string `env:"HOST" env-default:"localhost"`
+	Host string `env:"HOST" env-default:""`
 	Port int    `env:"PORT" env-default:"8082"`
+	FixturesPath string `env-default:"fixtures"`
 	// LogConfig LogConfig
 	// DBConfig DBConfig
 }
@@ -30,8 +29,5 @@ type Config struct {
 func Read() (*Config, error) {
 	var config Config
 	err := cleanenv.ReadEnv(&config)
-	if err != nil {
-		fmt.Printf("HHHHHH %s", err)
-	}
 	return &config, err
 }

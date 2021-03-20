@@ -14,6 +14,7 @@ import (
 )
 
 var ErrAppFatal = errors.New("application cannot start")
+var ErrCannotCreateFixturesDir = errors.New("cannot create fixtures directory")
 
 var isDev bool
 
@@ -30,6 +31,12 @@ func main() {
 	}
 	if isDev {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
+	if _, err := os.Stat(cfg.FixturesPath); os.IsNotExist(err) {
+		err = os.Mkdir(cfg.FixturesPath, 0755)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("%s: %s", ErrCannotCreateFixturesDir, err)
+		}
 	}
 	app := app.New(cfg, http.DefaultClient)
 	err = app.Run(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port))

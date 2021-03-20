@@ -35,7 +35,7 @@ func (p *App) Run(addr string) error {
 
 	handler := cors.New(
 		cors.Options{
-			AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+			AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodHead},
 		}).Handler(r)
 
 	return http.ListenAndServe(addr, handler)

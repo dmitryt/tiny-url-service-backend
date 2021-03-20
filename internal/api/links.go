@@ -72,6 +72,9 @@ func writeLinksToFile(data []Link) {
 
 func getLinksHandler(w http.ResponseWriter, r *http.Request) {
 	content := readContentOrCreateFile()
+	if len(content) == 0 {
+		content = []byte("[]")
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(content)
 }
