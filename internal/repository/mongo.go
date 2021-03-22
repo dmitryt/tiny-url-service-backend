@@ -3,12 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"fmt"
 
 	// is used for init postgres.
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var ErrDBOpen = errors.New("database open error")
@@ -23,10 +23,12 @@ func (r *MongoRepo) Connect(ctx context.Context, url string) (err error) {
 	if err != nil {
 		return fmt.Errorf("%s: %w", ErrDBOpen, err)
 	}
+
+	return
 }
 
-func (r *MongoRepo) Close() error {
-	return r.client.Disconnect()
+func (r *MongoRepo) Close(ctx context.Context) error {
+	return r.client.Disconnect(ctx)
 }
 
 func NewMongoRepo() *MongoRepo {

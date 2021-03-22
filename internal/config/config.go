@@ -6,7 +6,7 @@ import (
 
 type LogConfig struct {
 	Level    string `env:"LOG_LEVEL" env-default:"info"`
-	FilePath string `env:"FILE_PATH" env:"LOG_FILE"`
+	FilePath string `env:"LOG_FILE" env-default:"file.log"`
 }
 
 type DBConfig struct {
@@ -19,8 +19,8 @@ type DBConfig struct {
 }
 
 type Config struct {
-	Host string `env:"HOST" env-default:""`
-	Port int    `env:"PORT" env-default:"8082"`
+	Host         string `env:"HOST" env-default:"localhost"`
+	Port         int    `env:"PORT" env-default:"8082"`
 	FixturesPath string `env-default:"fixtures"`
 	// LogConfig LogConfig
 	// DBConfig DBConfig
@@ -29,5 +29,6 @@ type Config struct {
 func Read() (*Config, error) {
 	var config Config
 	err := cleanenv.ReadEnv(&config)
+
 	return &config, err
 }

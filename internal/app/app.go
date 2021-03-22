@@ -5,9 +5,7 @@ import (
 
 	"github.com/dmitryt/tiny-url-service-backend/internal/api"
 	"github.com/dmitryt/tiny-url-service-backend/internal/config"
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
-	"github.com/rs/zerolog/log"
+	"github.com/gofiber/fiber/v2"
 )
 
 type App struct {
@@ -26,17 +24,10 @@ func New(config *config.Config, client *http.Client) *App {
 
 func (p *App) Run(addr string) error {
 	apiInstance := api.New()
+	app := fiber.New()
 
-	r := mux.NewRouter()
+	api := app.Group("/api/v1")
+	apiInstance.Handle(api)
 
-	apiInstance.Handle(r.PathPrefix("/api").Subrouter())
-
-	log.Info().Msgf("Listening at %s", addr)
-
-	handler := cors.New(
-		cors.Options{
-			AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodHead},
-		}).Handler(r)
-
-	return http.ListenAndServe(addr, handler)
+	return app.Listen(addr)
 }

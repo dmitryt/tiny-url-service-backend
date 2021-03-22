@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
+
+	"github.com/dmitryt/tiny-url-service-backend/internal/config"
+	models "github.com/dmitryt/tiny-url-service-backend/internal/models"
 )
 
 var ErrUnSupportedRepoType = errors.New("unsupported repository type")
@@ -15,32 +17,33 @@ type dbConnector interface {
 }
 
 type CRUD interface {
-	GetLinks() ([]Link, error)
+	GetLinks() ([]models.Link, error)
 
-	CreateLink(Link) (Link, error)
+	CreateLink(models.Link) (models.Link, error)
 	DeleteEvent(int64) error
 
-	CreateUser(User) (User, error)
-	GetUser(int64) (User, error)
+	CreateUser(models.User) (models.User, error)
+	GetUser(int64) (models.User, error)
 	dbConnector
 }
 
-func newRepo(repoType string, args ...interface{}) interface{} {
-	switch repoType {
-	case "mongo":
+func newRepo(repoType string) interface{} {
+	if repoType == "mongo" {
 		return NewMongoRepo()
 	}
+
 	return nil
 }
 
-func NewCRUD(repoType string, args ...interface{}) CRUD {
-	repo, ok := newRepo(repoType, args...).(CRUD)
+func NewCRUD(repoType string) CRUD {
+	repo, ok := newRepo(repoType).(CRUD)
 	if !ok {
 		return nil
 	}
+
 	return repo
 }
 
 func GetMongoURI(c *config.DBConfig) string {
-	return fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", c.User, c.Password, c.Host, c.Port, c.DBName)
+	return fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.DBName)
 }

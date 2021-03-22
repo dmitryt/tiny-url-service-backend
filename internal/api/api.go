@@ -1,21 +1,18 @@
 package api
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
 type API struct {
-}
-
-type DummyResponse struct {
-	OK bool
 }
 
 func New() *API {
 	return &API{}
 }
 
-func (p *API) Handle(r *mux.Router) {
-	p.HandleLinks(r.PathPrefix("/links").Subrouter())
-	p.HandleHealthCheck(r.PathPrefix("/health-check").Subrouter())
+func (p *API) Handle(r fiber.Router) {
+	p.HandleHealthCheck(r.Group("/health-check"))
+	p.HandleLinks(r.Group("/links"))
+	// p.HandleLinks(r.Group("/auth"))
 }

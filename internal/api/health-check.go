@@ -1,26 +1,19 @@
 package api
 
 import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	dummyResponse := DummyResponse{true}
-
-	content, err := json.Marshal(dummyResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write(content)
+type DummyResponse struct {
+	OK bool
 }
 
-func (p *API) HandleHealthCheck(r *mux.Router) {
-	r.HandleFunc("/", healthCheckHandler).Methods("GET")
+func healthCheckHandler(c *fiber.Ctx) error {
+	return c.JSON(DummyResponse{true})
+}
+
+func (p *API) HandleHealthCheck(r fiber.Router) {
+	// p.HandleLinks(r.Group("/links"))
+	// p.HandleLinks(r.Group("/auth"))
+	r.Get("", healthCheckHandler)
 }
