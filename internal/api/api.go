@@ -14,5 +14,5 @@ func New() *API {
 func (p *API) Handle(r fiber.Router) {
 	p.HandleHealthCheck(r.Group("/health-check"))
 	p.HandleLinks(r.Group("/links"))
-	// p.HandleLinks(r.Group("/auth"))
+	p.HandleAuth(r.Group("/auth"))
 }

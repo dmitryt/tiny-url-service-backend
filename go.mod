@@ -3,6 +3,7 @@ module github.com/dmitryt/tiny-url-service-backend
 go 1.15
 
 require (
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.6.0
 	github.com/google/uuid v1.2.0
 	github.com/ilyakaznacheev/cleanenv v1.2.5
@@ -13,6 +14,7 @@ require (
 	github.com/valyala/fasthttp v1.22.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.5.0
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

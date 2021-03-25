@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/dmitryt/tiny-url-service-backend/internal/config"
-	models "github.com/dmitryt/tiny-url-service-backend/internal/models"
+	"github.com/dmitryt/tiny-url-service-backend/internal/models"
 )
 
 var ErrUnSupportedRepoType = errors.New("unsupported repository type")

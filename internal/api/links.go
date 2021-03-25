@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	models "github.com/dmitryt/tiny-url-service-backend/internal/models"
+	"github.com/dmitryt/tiny-url-service-backend/internal/session"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -19,17 +20,7 @@ type LinkPayload struct {
 	Value string `json:"value"`
 }
 
-var (
-	ErrFileCreate       = errors.New("error during creating the file")
-	ErrFileRead         = errors.New("error during reading the file")
-	ErrFileWrite        = errors.New("error during writing the file")
-	ErrContentUnmarshal = errors.New("error during unmarshaling the content")
-	ErrContentMarshal   = errors.New("error during marshaling the content")
-	ErrParsingBody      = errors.New("error during parsing the request body")
-	ErrValidationAddURL = errors.New("error, incoming data is empty")
-)
-
-var storagePath = filepath.Join("fixtures", "links.json")
+var linksStoragePath = filepath.Join("fixtures", "links.json")
 
 func logErrorIfExists(ctxErr, err error) error {
 	if err != nil {
@@ -41,14 +32,46 @@ func logErrorIfExists(ctxErr, err error) error {
 	return nil
 }
 
-func readLinksFromFile() (result []models.Link, err error) {
-	content, err := ioutil.ReadFile(storagePath)
+func getCurrentUserID(c *fiber.Ctx) (string, error) {
+	store, err := session.Store.Get(c)
+	if err != nil {
+		return "", logErrorIfExists(fiber.ErrUnauthorized, err)
+	}
+	uid := fmt.Sprintf("%v", store.Get("uid"))
+	if uid == "" {
+		return "", logErrorIfExists(fiber.ErrUnauthorized, err)
+	}
+
+	return uid, nil
+}
+
+func readLinksFromFile(c *fiber.Ctx) (result []models.Link, err error) {
+	var allData []models.Link
+	uid, err := getCurrentUserID(c)
 	if err != nil {
 		return
 	}
-	err = json.Unmarshal(content, &result)
+	content, err := ioutil.ReadFile(linksStoragePath)
+	if err != nil {
+		return
+	}
+	if len(content) == 0 {
+		content = []byte("[]")
+	}
 
-	return result, logErrorIfExists(ErrContentUnmarshal, err)
+	err = json.Unmarshal(content, &allData)
+
+	if err != nil {
+		return result, logErrorIfExists(ErrContentUnmarshal, err)
+	}
+
+	for _, link := range allData {
+		if link.User == uid {
+			result = append(result, link)
+		}
+	}
+
+	return result, nil
 }
 
 func writeLinksToFile(data []models.Link) (err error) {
@@ -56,13 +79,13 @@ func writeLinksToFile(data []models.Link) (err error) {
 	if err != nil {
 		return logErrorIfExists(ErrContentMarshal, err)
 	}
-	err = ioutil.WriteFile(storagePath, content, 0o600)
+	err = ioutil.WriteFile(linksStoragePath, content, 0o600)
 
 	return logErrorIfExists(ErrFileWrite, err)
 }
 
 func getLinksHandler(c *fiber.Ctx) error {
-	links, err := readLinksFromFile()
+	links, err := readLinksFromFile(c)
 	if err != nil {
 		return err
 	}
@@ -71,18 +94,23 @@ func getLinksHandler(c *fiber.Ctx) error {
 }
 
 func addLinkHandler(c *fiber.Ctx) error {
+	uid, err := getCurrentUserID(c)
+	if err != nil {
+		return err
+	}
+
 	payload := new(LinkPayload)
 	if err := c.BodyParser(payload); err != nil {
 		return logErrorIfExists(ErrParsingBody, err)
 	}
 	if payload.Value == "" {
-		return logErrorIfExists(ErrValidationAddURL, nil)
+		return logErrorIfExists(ErrValidationAddItem, errors.New("invalid data"))
 	}
-	links, err := readLinksFromFile()
+	links, err := readLinksFromFile(c)
 	if err != nil {
 		return err
 	}
-	newLink := models.Link{ID: primitive.NewObjectID().Hex(), Alias: fmt.Sprintf("/%s", uuid.New().String()), URL: payload.Value}
+	newLink := models.Link{ID: primitive.NewObjectID().Hex(), Alias: fmt.Sprintf("/%s", uuid.New().String()), URL: payload.Value, User: uid}
 	err = writeLinksToFile(append(links, newLink))
 	if err != nil {
 		return err
@@ -94,7 +122,7 @@ func addLinkHandler(c *fiber.Ctx) error {
 func deleteLinkHandler(c *fiber.Ctx) error {
 	linkID := c.Params("id")
 	linkIndex := -1
-	links, err := readLinksFromFile()
+	links, err := readLinksFromFile(c)
 	if err != nil {
 		return err
 	}
