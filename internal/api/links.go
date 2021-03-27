@@ -17,7 +17,7 @@ import (
 )
 
 type LinkPayload struct {
-	Value string `json:"value"`
+	Value string `json:"full_url"`
 }
 
 var linksStoragePath = filepath.Join("fixtures", "links.json")

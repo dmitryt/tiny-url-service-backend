@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var publicRoutes = []string{"/api/v1/auth/login", "/api/v1/auth/register"}
+var publicRoutes = []string{"/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/logout"}
 
 func Auth(c *fiber.Ctx) error {
 	for _, route := range publicRoutes {

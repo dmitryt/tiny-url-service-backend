@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -67,8 +66,6 @@ func loginHandler(c *fiber.Ctx) error {
 
 	foundUser := models.User{}
 	for _, user := range users {
-		fmt.Println("user", user.Username == payload.Username, comparePassword(user.Password, payload.Password))
-
 		if user.Username == payload.Username && comparePassword(user.Password, payload.Password) == nil {
 			foundUser = user
 		}
@@ -86,7 +83,9 @@ func loginHandler(c *fiber.Ctx) error {
 		panic(err)
 	}
 
-	return c.JSON(DummyResponse{OK: true})
+	foundUser.Password = ""
+
+	return c.JSON(foundUser)
 }
 
 func logoutHandler(c *fiber.Ctx) error {
@@ -128,7 +127,6 @@ func registerHandler(c *fiber.Ctx) error {
 }
 
 func (p *API) HandleAuth(r fiber.Router) {
-	r.Get("/user", registerHandler)
 	r.Post("/login", loginHandler)
 	r.Post("/logout", logoutHandler)
 	r.Post("/register", registerHandler)
